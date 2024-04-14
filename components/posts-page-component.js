@@ -1,19 +1,8 @@
-import { posts, goToPage, user } from "../index.js";
+import { user, posts, goToPage } from "../index.js";
 import { USER_POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
 
-export function renderPostsPageComponent({ appEl, userId }) {
-  // TODO: реализовать рендер постов из api
-  // console.log("Актуальный список постов:", posts);
-  // console.log(userId);
-  // console.log(user);
-  /**
-   * TODO: чтобы отформатировать дату создания поста в виде "19 минут назад"
-   * можно использовать https://date-fns.org/v2.29.3/docs/formatDistanceToNow
-   */
-
-  // console.log(userId);
-
+export function renderPostsPageComponent({ appEl, userId, updatePost }) {
   const postsHTML = posts
     .map((post) => {
       return `
@@ -30,7 +19,7 @@ export function renderPostsPageComponent({ appEl, userId }) {
           <img class="post-image" src="${post.imageUrl}" />
         </div>
         <div class="post-likes">
-          <button data-post-id="${post.id}" class="like-button">
+          <button data-post-id="${post.id}" data-is-liked="${post.isLiked}" class="like-button">
             <img src="./assets/images/${post.isLiked ? "like-active.svg" : "like-not-active.svg"}" />
           </button>
           <p class="post-likes-text">Нравится: <strong>${post.likes.length}</strong></p>
@@ -73,6 +62,20 @@ export function renderPostsPageComponent({ appEl, userId }) {
       goToPage(USER_POSTS_PAGE, {
         userId: userEl.dataset.userId,
       });
+    });
+  }
+
+  if (!user) {
+    return;
+  }
+
+  for (let likeEl of document.querySelectorAll(".like-button")) {
+    likeEl.addEventListener("click", () => {
+      if (likeEl.dataset.isLiked === "true") {
+        updatePost({ type: "dislike", id: likeEl.dataset.postId });
+      } else {
+        updatePost({ type: "like", id: likeEl.dataset.postId });
+      }
     });
   }
 }

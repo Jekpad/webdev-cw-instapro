@@ -111,3 +111,39 @@ export function createPost({ token, description, imageUrl }) {
     return response.json();
   });
 }
+
+export function postLike({ token, id }) {
+  return fetch(`${postsHost}/${id}/like`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+  }).then((response) => {
+    if (response.status === 401) {
+      throw new Error("Нет авторизации");
+    }
+    if (response.status === 400) {
+      throw new Error("Невалидный JSON");
+    }
+
+    return response.json();
+  });
+}
+
+export function postDislike({ token, id }) {
+  return fetch(`${postsHost}/${id}/dislike`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+  }).then((response) => {
+    if (response.status === 401) {
+      throw new Error("Нет авторизации");
+    }
+    if (response.status === 400) {
+      throw new Error("Невалидный JSON");
+    }
+
+    return response.json();
+  });
+}

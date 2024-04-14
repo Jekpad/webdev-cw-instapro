@@ -1,4 +1,4 @@
-import { getPosts, createPost, getUserPosts } from "./api.js";
+import { getPosts, createPost, getUserPosts, postLike, postDislike } from "./api.js";
 import { renderAddPostPageComponent } from "./components/add-post-page-component.js";
 import { renderAuthPageComponent } from "./components/auth-page-component.js";
 import { ADD_POSTS_PAGE, AUTH_PAGE, LOADING_PAGE, POSTS_PAGE, USER_POSTS_PAGE } from "./routes.js";
@@ -20,6 +20,43 @@ export const logout = () => {
   user = null;
   removeUserFromLocalStorage();
   goToPage(POSTS_PAGE);
+};
+
+const updatePost = ({ type, id }) => {
+  const replacePost = (updatedPost) => {
+    for (let postId in posts) {
+      console.log(posts[postId].id);
+      if (updatedPost.id === posts[postId].id) {
+        posts[postId] = updatedPost;
+        break;
+      }
+    }
+  };
+
+  if (type === "like") {
+    postLike({ token: getToken(), id: id })
+      .then((updatedPost) => {
+        replacePost(updatedPost.post);
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        renderApp();
+      });
+  } else if (type === "dislike") {
+    postDislike({ token: getToken(), id: id })
+      .then((updatedPost) => {
+        replacePost(updatedPost.post);
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        renderApp();
+      });
+  } else if (type === "delete") {
+  }
 };
 
 /**
@@ -118,11 +155,16 @@ const renderApp = () => {
   if (page === POSTS_PAGE) {
     return renderPostsPageComponent({
       appEl,
+      updatePost: updatePost,
     });
   }
 
   if (page === USER_POSTS_PAGE) {
-    return renderPostsPageComponent({ appEl: appEl, userId: selectedUserId });
+    return renderPostsPageComponent({
+      appEl: appEl,
+      userId: selectedUserId,
+      updatePost: updatePost,
+    });
   }
 };
 
