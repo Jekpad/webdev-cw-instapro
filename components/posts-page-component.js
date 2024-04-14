@@ -1,6 +1,7 @@
 import { user, posts, goToPage } from "../index.js";
 import { USER_POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
+import { differenceInMonths, differenceInDays, differenceInHours, differenceInMinutes } from "date-fns";
 
 export function renderPostsPageComponent({ appEl, userId, updatePost }) {
   const postsHTML = posts
@@ -23,12 +24,17 @@ export function renderPostsPageComponent({ appEl, userId, updatePost }) {
             <img src="./assets/images/${post.isLiked ? "like-active.svg" : "like-not-active.svg"}" />
           </button>
           <p class="post-likes-text">Нравится: <strong>${post.likes.length}</strong></p>
+          ${
+            user !== null && post.user.id === user._id
+              ? `<button class="secondary-button post-delete" data-post-id="${post.id}">Удалить</button>`
+              : ``
+          }
         </div>
         <p class="post-text">
           <span class="user-name">${post.user.name}</span>
           ${post.description}
         </p>
-        <p class="post-date">${post.createdAt}</p>
+        <p class="post-date">${getTimeElapsed(post.createdAt, new Date())}</p>
       </li>
       `;
     })
@@ -77,5 +83,30 @@ export function renderPostsPageComponent({ appEl, userId, updatePost }) {
         updatePost({ type: "like", id: likeEl.dataset.postId });
       }
     });
+  }
+
+  for (let delEl of document.querySelectorAll(".post-delete")) {
+    delEl.addEventListener("click", () => {
+      updatePost({ type: "delete", id: delEl.dataset.postId });
+    });
+  }
+}
+
+function getTimeElapsed(fromDate, toDate) {
+  const differenceInMinutesValue = differenceInMinutes(toDate, fromDate);
+  const differenceInHoursValue = differenceInHours(toDate, fromDate);
+  const differenceInDaysValue = differenceInDays(toDate, fromDate);
+  const differenceInMonthsValue = differenceInMonths(toDate, fromDate);
+
+  if (differenceInMonthsValue >= 1) {
+    return `${differenceInMonthsValue} месяцев назад`;
+  } else if (differenceInDaysValue >= 1) {
+    return `${differenceInDaysValue} дней назад`;
+  } else if (differenceInHoursValue >= 1) {
+    return `${differenceInHoursValue} часов назад`;
+  } else if (differenceInMinutesValue >= 1) {
+    return `${differenceInMinutesValue} минут назад`;
+  } else {
+    return `Только что`;
   }
 }

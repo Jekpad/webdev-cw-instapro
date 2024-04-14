@@ -1,4 +1,4 @@
-import { getPosts, createPost, getUserPosts, postLike, postDislike } from "./api.js";
+import { getPosts, createPost, getUserPosts, postLike, postDislike, deletePost } from "./api.js";
 import { renderAddPostPageComponent } from "./components/add-post-page-component.js";
 import { renderAuthPageComponent } from "./components/auth-page-component.js";
 import { ADD_POSTS_PAGE, AUTH_PAGE, LOADING_PAGE, POSTS_PAGE, USER_POSTS_PAGE } from "./routes.js";
@@ -25,7 +25,6 @@ export const logout = () => {
 const updatePost = ({ type, id }) => {
   const replacePost = (updatedPost) => {
     for (let postId in posts) {
-      console.log(posts[postId].id);
       if (updatedPost.id === posts[postId].id) {
         posts[postId] = updatedPost;
         break;
@@ -56,6 +55,16 @@ const updatePost = ({ type, id }) => {
         renderApp();
       });
   } else if (type === "delete") {
+    deletePost({ token: getToken(), id: id })
+      .then(() => {
+        posts = posts.filter((post) => post.id !== id);
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        renderApp();
+      });
   }
 };
 
