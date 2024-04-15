@@ -2,17 +2,23 @@ import { user, posts, goToPage } from "../index.js";
 import { USER_POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
 import { differenceInMonths, differenceInDays, differenceInHours, differenceInMinutes } from "date-fns";
+import sanitizeHtml from "sanitize-html";
+
+const sanitize = (text) => sanitizeHtml(text, { allowedTags: [], allowedAttributes: [] });
 
 export function renderPostsPageComponent({ appEl, userId, updatePost }) {
   const postsHTML = posts
+
     .map((post) => {
+      let userName = sanitize(post.user.name);
+      let postDescription = sanitize(post.description);
       return `
       <li class="post">
         ${
           !userId
             ? `<div class="post-header" data-user-id="${post.user.id}">
                   <img src="${post.user.imageUrl}" class="post-header__user-image" />
-                  <p class="post-header__user-name">${post.user.name}</p>
+                  <p class="post-header__user-name">${userName}</p>
                 </div>`
             : ``
         }
@@ -31,8 +37,8 @@ export function renderPostsPageComponent({ appEl, userId, updatePost }) {
           }
         </div>
         <p class="post-text">
-          <span class="user-name">${post.user.name}</span>
-          ${post.description}
+          <span class="user-name">${userName}</span>
+          ${postDescription}
         </p>
         <p class="post-date">${getTimeElapsed(post.createdAt, new Date())}</p>
       </li>

@@ -140,8 +140,6 @@ const renderApp = () => {
         saveUserToLocalStorage(user);
         goToPage(POSTS_PAGE);
       },
-      // user,
-      // goToPage,
     });
   }
 
