@@ -1,11 +1,34 @@
-// Замени на свой, чтобы получить независимый от других набор данных.
+import sanitizeHtml from "sanitize-html";
+
 // "боевая" версия инстапро лежит в ключе prod
-const personalKey = "prod";
+const personalKey = "uvarov-ms";
 const baseHost = "https://webdev-hw-api.vercel.app";
 const postsHost = `${baseHost}/api/v1/${personalKey}/instapro`;
 
+const sanitize = (text) => sanitizeHtml(text, { allowedTags: [], allowedAttributes: [] });
+
 export function getPosts({ token }) {
   return fetch(postsHost, {
+    method: "GET",
+    headers: {
+      Authorization: token,
+    },
+  })
+    .then((response) => {
+      if (response.status === 401) {
+        throw new Error("Нет авторизации");
+      }
+
+      return response.json();
+    })
+    .then((data) => {
+      return data.posts;
+    });
+}
+
+// Посты выбранного пользователя
+export function getUserPosts({ token, userID }) {
+  return fetch(`${postsHost}/user-posts/${userID}`, {
     method: "GET",
     headers: {
       Authorization: token,
@@ -28,10 +51,10 @@ export function registerUser({ login, password, name, imageUrl }) {
   return fetch(baseHost + "/api/user", {
     method: "POST",
     body: JSON.stringify({
-      login,
-      password,
-      name,
-      imageUrl,
+      login: sanitize(login),
+      password: sanitize(password),
+      name: sanitize(name),
+      imageUrl: imageUrl,
     }),
   }).then((response) => {
     if (response.status === 400) {
@@ -45,8 +68,8 @@ export function loginUser({ login, password }) {
   return fetch(baseHost + "/api/user/login", {
     method: "POST",
     body: JSON.stringify({
-      login,
-      password,
+      login: sanitize(login),
+      password: sanitize(password),
     }),
   }).then((response) => {
     if (response.status === 400) {
@@ -65,6 +88,84 @@ export function uploadImage({ file }) {
     method: "POST",
     body: data,
   }).then((response) => {
+    return response.json();
+  });
+}
+
+// Создаёт новый пост
+export function createPost({ token, description, imageUrl }) {
+  return fetch(postsHost, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+    body: JSON.stringify({
+      description: sanitize(description),
+      imageUrl: imageUrl,
+    }),
+  }).then((response) => {
+    if (response.status === 401) {
+      throw new Error("Нет авторизации");
+    }
+    if (response.status === 400) {
+      throw new Error("Невалидный JSON");
+    }
+
+    return response.json();
+  });
+}
+
+// Удаляет существующий пост
+export function deletePost({ token, id }) {
+  return fetch(`${postsHost}/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: token,
+    },
+  }).then((response) => {
+    if (response.status === 401) {
+      throw new Error("Нет авторизации");
+    }
+    if (response.status === 400) {
+      throw new Error("Невалидный JSON");
+    }
+
+    return response.json();
+  });
+}
+
+export function postLike({ token, id }) {
+  return fetch(`${postsHost}/${id}/like`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+  }).then((response) => {
+    if (response.status === 401) {
+      throw new Error("Нет авторизации");
+    }
+    if (response.status === 400) {
+      throw new Error("Невалидный JSON");
+    }
+
+    return response.json();
+  });
+}
+
+export function postDislike({ token, id }) {
+  return fetch(`${postsHost}/${id}/dislike`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+  }).then((response) => {
+    if (response.status === 401) {
+      throw new Error("Нет авторизации");
+    }
+    if (response.status === 400) {
+      throw new Error("Невалидный JSON");
+    }
+
     return response.json();
   });
 }

@@ -12,11 +12,7 @@ export function renderAuthPageComponent({ appEl, setUser }) {
           <div class="header-container"></div>
           <div class="form">
               <h3 class="form-title">
-                ${
-                  isLoginMode
-                    ? "Вход в&nbsp;Instapro"
-                    : "Регистрация в&nbsp;Instapro"
-                }
+                ${isLoginMode ? "Вход в&nbsp;Instapro" : "Регистрация в&nbsp;Instapro"}
                 </h3>
               <div class="form-inputs">
     
@@ -34,9 +30,7 @@ export function renderAuthPageComponent({ appEl, setUser }) {
                   
                   <div class="form-error"></div>
                   
-                  <button class="button" id="login-button">${
-                    isLoginMode ? "Войти" : "Зарегистрироваться"
-                  }</button>
+                  <button class="button" id="login-button">${isLoginMode ? "Войти" : "Зарегистрироваться"}</button>
               </div>
             
               <div class="form-footer">
